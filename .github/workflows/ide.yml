@@ -1,0 +1,37 @@
+name: PHPStorm
+
+on: [push]
+
+jobs:
+
+  ide:
+    name: IDE Inspection
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          tools: composer:v2
+
+      - name: Update project dependencies
+        run: composer install
+
+      - name: Run PHPStorm
+        uses: mridang/action-phpstorm@master
+        with:
+          target: .
+          profile: ./.idea/inspectionProfiles/CI.xml
+          output: ./output
+          verbosity: v2
+          scope: Inspection
+
+      - name: Archive inspection results
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: inspection-results
+          path: output
